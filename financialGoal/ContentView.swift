@@ -14,7 +14,8 @@ struct ContentView: View {
     @State var addAmount: String = "" // المبلغ الذي سيدخله المستخدم
     @State var showPopup = false // التحكم في إظهار النافذة المنبثقة
     @State private var goalInput: String = "" // لإدخال الهدف المالي الجديد
-
+    @State private var showDeleteAlert = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -118,18 +119,29 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Text("Welcome to your")
                 }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        print("function")
-                    }) {
+                ToolbarItem(placement:.topBarTrailing){Button(action:{
+                    showDeleteAlert = true
+                }){
                         Image(systemName: "trash")
                             .foregroundColor(Color.red)
                     }
                 }
             }
-        }
-    }
+            .alert(isPresented:$showDeleteAlert){
+                Alert(
+                    title: Text("delet goal?"),
+                    message: Text("Are you sure you want to delete this goal? "),
+                    primaryButton: .destructive(Text("Delete")){
+                        goalAmount = 0.0
+                        totalAmount = 0.0
+                        progressValue = 0.0
+                        print("Goal deleted")
+                    },
+                    secondaryButton:.cancel())
+                    }
+                    }
+                    }
+            }
 
     struct ProgressBar: View {
         @Binding var progress: Float
@@ -166,7 +178,7 @@ struct ContentView: View {
             }
         }
     }
-}
+
 
 #Preview {
     ContentView()
