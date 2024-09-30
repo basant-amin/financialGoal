@@ -10,7 +10,8 @@ import SwiftUI
 struct ContentView: View {
     @State var progressValue: Float = 0.0
     @State var totalAmount: Float = 0.0 // المبلغ الحالي
-    @State var goalAmount: Float = 0.0 // الهدف النهائي
+    @State var goalAmount: Float = 0.0
+    @State var emojie : String = ""// الهدف النهائي
     @State var addAmount: String = "" // المبلغ الذي سيدخله المستخدم
     @State var showPopup = false // التحكم في إظهار النافذة المنبثقة
     @State private var goalInput: String = "" // لإدخال الهدف المالي الجديد
@@ -63,7 +64,7 @@ struct ContentView: View {
 
                 // نافذة منبثقة صغيرة في المنتصف
                 if showPopup {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 5) {
                         Text("Set Your Goal")
                             .font(.headline)
                             .padding(.top) // إضافة padding العلوي
@@ -79,11 +80,19 @@ struct ContentView: View {
                                     .stroke(Color.gray, lineWidth: 1) // لون الحدود رمادي
                             )
                         
-                                  
-                        
-                        
                             .padding(.horizontal, 30) // Padding على الأطراف لجعل الحقل بعيد عن الحواف
-
+                        TextField("Enter Item Emoje 💰", text: $emojie)
+                            .keyboardType(.decimalPad)
+                            .padding()  // إضافة padding داخل الحقل
+                            .background(Color.white) // خلفية الحقل بيضاء
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray, lineWidth: 1) // لون الحدود رمادي
+                            )
+                        
+                            .padding(.horizontal, 30) // Padding على ا
+                        
                         Button("Save") {
                             // تعيين الهدف الجديد وإغلاق النافذة المنبثقة
                             if let newGoal = Float(goalInput), newGoal > 0 {
@@ -162,6 +171,7 @@ struct ContentView: View {
                     .stroke(lineWidth: 20.0)
                     .opacity(0.20)
                     .foregroundColor(Color.gray)
+                
 
                 Circle()
                     .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
