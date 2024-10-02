@@ -11,7 +11,7 @@ import SwiftUI
 struct financialGoalApp: App {
     var body: some Scene {
         WindowGroup {
-            splashScreenView()
+            SplashScreenView()
         }
     }
 }
