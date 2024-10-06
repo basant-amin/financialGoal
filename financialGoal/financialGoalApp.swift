@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct financialGoalApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .modelContainer(for: FinancialData.self)
         }
     }
 }

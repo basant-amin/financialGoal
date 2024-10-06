@@ -6,121 +6,135 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @State var progressValue: Float = 0.0
-    @State var totalAmount: Float = 0.0 // المبلغ الحالي
-    @State var goalAmount: Float = 0.0
-    @State var emojie : String = ""// الهدف النهائي
-    @State var addAmount: String = "" // المبلغ الذي سيدخله المستخدم
-    @State var showPopup = false // التحكم في إظهار النافذة المنبثقة
-    @State private var goalInput: String = "" // لإدخال الهدف المالي الجديد
-    @State private var showDeleteAlert = false
+    @Environment(\.modelContext) private var modelContext // الوصول إلى حاوية البيانات
+    @Query private var financialDataList: [FinancialData] // جلب بيانات الأهداف المالية المخزنة
     
+    @State var progressValue: Float = 0.0
+    @State var totalAmount: Float = 0.0
+    @State var goalAmount: Float = 0.0
+    @State var addAmount: String = ""
+    @State var showPopup = false
+    @State private var goalInput: String = ""
+    @State var goalCompleted = false // State to track if goal is completed
+    @State private var showDeleteAlert = false
+
     var body: some View {
         NavigationStack {
             ZStack {
                 VStack {
-                    // محتوى التطبيق الرئيسي
                     Text("Add your Goal")
                         .font(.headline)
                         .padding(.top, 50)
                         .padding(.bottom, 10)
-
+                    
                     ProgressBar(progress: self.$progressValue, showPopup: $showPopup)
                         .frame(width: 160.0, height: 160.0)
                         .padding(20.0)
 
                     Text("Goal: \(Int(goalAmount))")
                     Text("Current: \(Int(totalAmount))")
-
-                    // إدخال المبلغ الذي يريد المستخدم إضافته
+                    
                     TextField("Enter amount", text: $addAmount)
                         .keyboardType(.decimalPad)
                         .padding()
                         .border(Color.gray, width: 1)
                         .padding(.horizontal)
-
+                    
                     Button("Add Amount") {
                         if let amount = Float(self.addAmount), amount > 0 {
                             totalAmount += amount
-
-                            // حساب التقدم بناءً على النسبة بين المبلغ المدخل والهدف
+                            
+                            // Check if totalAmount reaches goalAmount
                             if totalAmount >= goalAmount {
                                 totalAmount = goalAmount
                                 progressValue = 1.0
+                                goalCompleted = true
                             } else {
                                 progressValue = totalAmount / goalAmount
                             }
-
-                            // إعادة تعيين الحقل بعد الإدخال
                             addAmount = ""
+                            
+                            // Update the financial data in the model
+                            if let financialData = financialDataList.first {
+                                financialData.addAmount = totalAmount
+                                
+                                // Save the changes with error handling
+                                do {
+                                    try modelContext.save() // Save the changes
+                                } catch {
+                                    print("Error saving financial data: \(error)")
+                                }
+                            }
                         }
                     }
                     .padding()
 
-                    Spacer() // لضبط المحتوى بالأسفل
+                    // Navigate to CelebrationView if the goal is completed
+                    NavigationLink(destination: CelebrationView(), isActive: $goalCompleted) {
+                        EmptyView()
+                    }
+                    
+                    Spacer()
                 }
 
-                // نافذة منبثقة صغيرة في المنتصف
                 if showPopup {
-                    VStack(spacing: 5) {
+                    VStack(spacing: 20) {
                         Text("Set Your Goal")
                             .font(.headline)
-                            .padding(.top) // إضافة padding العلوي
+                            .padding(.top)
 
-                        // حقل إدخال الهدف المالي الجديد مع تصميم محسّن
                         TextField("Enter new goal", text: $goalInput)
                             .keyboardType(.decimalPad)
-                            .padding()  // إضافة padding داخل الحقل
-                            .background(Color.white) // خلفية الحقل بيضاء
+                            .padding()
+                            .background(Color.white)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray, lineWidth: 1) // لون الحدود رمادي
+                                    .stroke(Color.gray, lineWidth: 1)
                             )
-                        
-                            .padding(.horizontal, 30) // Padding على الأطراف لجعل الحقل بعيد عن الحواف
-                        TextField("Enter Item Emoje 💰", text: $emojie)
-                            .keyboardType(.decimalPad)
-                            .padding()  // إضافة padding داخل الحقل
-                            .background(Color.white) // خلفية الحقل بيضاء
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray, lineWidth: 1) // لون الحدود رمادي
-                            )
-                        
-                            .padding(.horizontal, 30) // Padding على ا
-                        
+                            .padding(.horizontal, 30)
+
                         Button("Save") {
-                            // تعيين الهدف الجديد وإغلاق النافذة المنبثقة
                             if let newGoal = Float(goalInput), newGoal > 0 {
                                 goalAmount = newGoal
-                                goalInput = "" // إعادة تعيين حقل الإدخال
-                                showPopup = false // إغلاق النافذة
+                                progressValue = totalAmount / goalAmount // Update progress based on the new goal
+                                goalInput = ""
+                                showPopup = false
+                                
+                                // Create a new FinancialData instance and save it
+                                let newFinancialData = FinancialData(progress: progressValue, goalAmount: goalAmount, addAmount: totalAmount)
+                                modelContext.insert(newFinancialData) // Insert the new financial data
+                                
+                                // Save the new financial data with error handling
+                                do {
+                                    try modelContext.save() // Save the new data
+                                } catch {
+                                    print("Error saving new financial data: \(error)")
+                                }
                             }
                         }
                         .padding(.top, 10)
-
                     }
-                    .frame(width: 300, height: 200) // حجم النافذة المنبثقة
+                    .frame(width: 300, height: 200)
                     .background(Color.white)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.933, green: 0.933, blue: 0.933), lineWidth: 1) // لون الحدود (#eee)
+                            .stroke(Color(red: 0.933, green: 0.933, blue: 0.933), lineWidth: 1)
                     )
                     .overlay(
                         Button(action: {
-                            showPopup = false // إغلاق النافذة عند الضغط على الزر
+                            showPopup = false
                         }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.gray)
                                 .padding()
                         }, alignment: .topTrailing
                     )
-                    .padding()  // Padding إضافي للنافذة نفسها
+                    .padding()
                 }
             }
             .navigationTitle("Financial Goal")
@@ -128,67 +142,47 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Text("Welcome to your")
                 }
-                ToolbarItem(placement:.topBarTrailing){Button(action:{
-                    showDeleteAlert = true
-                }){
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        showDeleteAlert = true
+                    }) {
                         Image(systemName: "trash")
                             .foregroundColor(Color.red)
                     }
                 }
             }
-            .alert(isPresented:$showDeleteAlert){
+            .alert(isPresented: $showDeleteAlert) {
                 Alert(
-                    title: Text("delet goal?"),
-                    message: Text("Are you sure you want to delete this goal? "),
-                    primaryButton: .destructive(Text("Delete")){
-                        goalAmount = 0.0
-                        totalAmount = 0.0
-                        progressValue = 0.0
-                        print("Goal deleted")
+                    title: Text("Delete Goal"),
+                    message: Text("Are you sure you want to delete this goal?"),
+                    primaryButton: .destructive(Text("Delete")) {
+                        // Delete the financial data
+                        if let financialData = financialDataList.first {
+                            modelContext.delete(financialData) // Delete the first financial data
+                            goalAmount = 0.0
+                            totalAmount = 0.0
+                            progressValue = 0.0
+                            // Save the changes
+                            do {
+                                try modelContext.save()
+                            } catch {
+                                print("Error saving changes after deletion: \(error)")
+                            }
+                        }
                     },
-                    secondaryButton:.cancel())
-                    }
-                    }
-                    }
+                    secondaryButton: .cancel()
+                )
             }
-
-    struct ProgressBar: View {
-        @Binding var progress: Float
-        @Binding var showPopup: Bool // التحكم في إظهار النافذة المنبثقة
-        var color = Color.purple
-
-        var body: some View {
-            ZStack {
-                Button(action: {
-                    showPopup = true // إظهار النافذة المنبثقة عند الضغط
-                }) {
-                    Image(systemName: "plus")
-                        .foregroundColor(Color.black)
-                        .font(.system(size: 40))
+            .onAppear {
+                if let financialData = financialDataList.first {
+                    goalAmount = financialData.goalAmount
+                    totalAmount = financialData.addAmount
+                    progressValue = totalAmount / goalAmount // Initialize progress value based on stored data
                 }
-
-                Circle()
-                    .stroke(lineWidth: 20.0)
-                    .opacity(0.20)
-                    .foregroundColor(Color.gray)
-                
-
-                Circle()
-                    .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
-                    .stroke(
-                        style: StrokeStyle(
-                            lineWidth: 12,
-                            lineCap: .round,
-                            lineJoin: .round
-                        )
-                    )
-                    .foregroundColor(color)
-                    .rotationEffect(Angle(degrees: 270))
-                    .animation(.easeInOut(duration: 1.0))
             }
         }
     }
-
+}
 
 #Preview {
     ContentView()
