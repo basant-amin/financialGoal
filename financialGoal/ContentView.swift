@@ -18,13 +18,17 @@ struct ContentView: View {
     @State private var goalInput: String = ""
     @State var goalCompleted = false // State to track if goal is completed
     @State private var showDeleteAlert = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @State private var showEmojiPicker = false
+    @State private var selectedEmoji: String = ""
 
     var body: some View {
         NavigationStack {
             ZStack {
                 VStack {
                     
-                    ProgressBar(progress: self.$progressValue)
+                    ProgressBar(progress: self.$progressValue,   showPopup: $showPopup, selectedEmoji: $selectedEmoji, showEmojiPicker: $showEmojiPicker)
                         .frame(width: 160.0, height: 160.0)
                         .padding(20.0)
 
@@ -94,6 +98,13 @@ struct ContentView: View {
                             }
                         }
                         .padding()
+                    }
+                    
+                    
+                    // Display Emoji Picker
+                    if showEmojiPicker {
+                        EmojiView(show: $showEmojiPicker, selectedEmoji: $selectedEmoji)
+                            .transition(.move(edge: .bottom)) // Animate the emoji picker
                     }
 
                     NavigationLink(destination: CelebrationView(goalCompleted: $goalCompleted, resetAction: resetData), isActive: $goalCompleted) {
