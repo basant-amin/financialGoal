@@ -10,18 +10,18 @@ import SwiftUI
 
     struct ProgressBar: View {
         @Binding var progress: Float
-        @Binding var showPopup: Bool // التحكم في إظهار النافذة المنبثقة
+//        @Binding var showPopup: Bool // التحكم في إظهار النافذة المنبثقة
         var color = Color.purple
 
         var body: some View {
             ZStack {
-                Button(action: {
-                    showPopup = true // إظهار النافذة المنبثقة عند الضغط
-                }) {
-                    Image(systemName: "plus")
-                        .foregroundColor(Color.black)
-                        .font(.system(size: 40))
-                }
+//                Button(action: {
+//                    showPopup = true // إظهار النافذة المنبثقة عند الضغط
+//                }) {
+//                    Image(systemName: "plus")
+//                        .foregroundColor(Color.black)
+//                        .font(.system(size: 40))
+//                }
 
                 Circle()
                     .stroke(lineWidth: 20.0)

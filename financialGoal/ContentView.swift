@@ -9,9 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext // الوصول إلى حاوية البيانات
-    @Query private var financialDataList: [FinancialData] // جلب بيانات الأهداف المالية المخزنة
-    
+    @Environment(\.modelContext) private var modelContext // Access to data container
+    @Query private var financialDataList: [FinancialData]
     @State var progressValue: Float = 0.0
     @State var totalAmount: Float = 0.0
     @State var goalAmount: Float = 0.0
@@ -20,6 +19,8 @@ struct ContentView: View {
     @State private var goalInput: String = ""
     @State var goalCompleted = false // State to track if goal is completed
     @State private var showDeleteAlert = false
+    
+
 
     var body: some View {
         NavigationStack {
@@ -29,63 +30,15 @@ struct ContentView: View {
                         .font(.headline)
                         .padding(.top, 50)
                         .padding(.bottom, 10)
-                    
-                    ProgressBar(progress: self.$progressValue, showPopup: $showPopup)
+
+                    ProgressBar(progress: self.$progressValue)
                         .frame(width: 160.0, height: 160.0)
                         .padding(20.0)
 
                     Text("Goal: \(Int(goalAmount))")
                     Text("Current: \(Int(totalAmount))")
-                    
-                    TextField("Enter amount", text: $addAmount)
-                        .keyboardType(.decimalPad)
-                        .padding()
-                        .border(Color.gray, width: 1)
-                        .padding(.horizontal)
-                    
-                    Button("Add Amount") {
-                        if let amount = Float(self.addAmount), amount > 0 {
-                            totalAmount += amount
-                            
-                            // Check if totalAmount reaches goalAmount
-                            if totalAmount >= goalAmount {
-                                totalAmount = goalAmount
-                                progressValue = 1.0
-                                goalCompleted = true
-                            } else {
-                                progressValue = totalAmount / goalAmount
-                            }
-                            addAmount = ""
-                            
-                            // Update the financial data in the model
-                            if let financialData = financialDataList.first {
-                                financialData.addAmount = totalAmount
-                                
-                                // Save the changes with error handling
-                                do {
-                                    try modelContext.save() // Save the changes
-                                } catch {
-                                    print("Error saving financial data: \(error)")
-                                }
-                            }
-                        }
-                    }
-                    .padding()
 
-                    // Navigate to CelebrationView if the goal is completed
-                    NavigationLink(destination: CelebrationView(), isActive: $goalCompleted) {
-                        EmptyView()
-                    }
-                    
-                    Spacer()
-                }
-
-                if showPopup {
-                    VStack(spacing: 20) {
-                        Text("Set Your Goal")
-                            .font(.headline)
-                            .padding(.top)
-
+                    if goalAmount == 0 {
                         TextField("Enter new goal", text: $goalInput)
                             .keyboardType(.decimalPad)
                             .padding()
@@ -103,11 +56,11 @@ struct ContentView: View {
                                 progressValue = totalAmount / goalAmount // Update progress based on the new goal
                                 goalInput = ""
                                 showPopup = false
-                                
+
                                 // Create a new FinancialData instance and save it
                                 let newFinancialData = FinancialData(progress: progressValue, goalAmount: goalAmount, addAmount: totalAmount)
                                 modelContext.insert(newFinancialData) // Insert the new financial data
-                                
+
                                 // Save the new financial data with error handling
                                 do {
                                     try modelContext.save() // Save the new data
@@ -116,7 +69,58 @@ struct ContentView: View {
                                 }
                             }
                         }
-                        .padding(.top, 10)
+                    }
+
+                    if goalAmount > 0 {
+                        TextField("Enter amount", text: $addAmount)
+                            .keyboardType(.decimalPad)
+                            .padding()
+                            .border(Color.gray, width: 1)
+                            .padding(.horizontal)
+
+                        Button("Add Amount") {
+                            if let amount = Float(self.addAmount), amount > 0 {
+                                totalAmount += amount
+
+                                // Check if totalAmount reaches goalAmount
+                                if totalAmount >= goalAmount {
+                                    totalAmount = goalAmount
+                                    progressValue = 1.0
+                                    goalCompleted = true
+                                } else {
+                                    progressValue = totalAmount / goalAmount
+                                }
+                                addAmount = ""
+
+                                // Update the financial data in the model
+                                if let financialData = financialDataList.first {
+                                    financialData.addAmount = totalAmount
+
+                                    // Save the changes with error handling
+                                    do {
+                                        try modelContext.save() // Save the changes
+                                    } catch {
+                                        print("Error saving financial data: \(error)")
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                    }
+
+                    // Navigate to CelebrationView if the goal is completed
+                    NavigationLink(destination: CelebrationView(), isActive: $goalCompleted) {
+                        EmptyView()
+                    }
+
+                    Spacer()
+                }
+
+                if showPopup {
+                    VStack(spacing: 20) {
+                        Text("Set Your Goal")
+                            .font(.headline)
+                            .padding(.top)
                     }
                     .frame(width: 300, height: 200)
                     .background(Color.white)

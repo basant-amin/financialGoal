@@ -23,3 +23,5 @@ class FinancialData: Identifiable {
         self.addAmount = addAmount
     }
 }
+
+
