@@ -43,17 +43,14 @@ import SwiftUI
                     Button(action: {
                         showEmojiPicker.toggle()
                     }) {
-                        Text("+")
-                            .font(.largeTitle)
-                            .padding()
-                            .background(Color.blue.opacity(0.7))
-                            .foregroundColor(.white)
-                            .clipShape(Circle())
+                        Image(systemName: "plus")
+                            .font(.system(size: 72))
+                            .foregroundColor(.black)
+                           
+                            
                     }
-                    .frame(width: 60, height: 60) // Size of the button
-                    .background(Color.white.opacity(0.8)) // Background behind the button
-                    .clipShape(Circle())
-                    .shadow(radius: 5)
+                 
+                 
                 } else {
                     Text(selectedEmoji)
                         .font(.system(size: 70))

@@ -28,12 +28,13 @@ struct ContentView: View {
             ZStack {
                 VStack {
                     
-                    ProgressBar(progress: self.$progressValue,   showPopup: $showPopup, selectedEmoji: $selectedEmoji, showEmojiPicker: $showEmojiPicker)
+                    ProgressBar(progress: self.$progressValue, showPopup: $showPopup, selectedEmoji: $selectedEmoji, showEmojiPicker: $showEmojiPicker)
                         .frame(width: 160.0, height: 160.0)
                         .padding(20.0)
 
                     Text("Goal: \(Int(goalAmount))")
                     Text("Current: \(Int(totalAmount))")
+                    Text("Emoji: \(selectedEmoji)") // Display the selected emoji
 
                     if goalAmount == 0 {
                         TextField("Enter new goal", text: $goalInput)
@@ -54,7 +55,7 @@ struct ContentView: View {
                                 goalInput = ""
                                 showPopup = false
 
-                                let newFinancialData = FinancialData(progress: progressValue, goalAmount: goalAmount, addAmount: totalAmount)
+                                let newFinancialData = FinancialData(progress: progressValue, goalAmount: goalAmount, addAmount: totalAmount, selectedEmoji: selectedEmoji)
                                 modelContext.insert(newFinancialData)
 
                                 do {
@@ -88,6 +89,7 @@ struct ContentView: View {
 
                                 if let financialData = financialDataList.first {
                                     financialData.addAmount = totalAmount
+                                    financialData.selectedEmoji = selectedEmoji // Save the selected emoji
 
                                     do {
                                         try modelContext.save()
@@ -171,6 +173,7 @@ struct ContentView: View {
                     goalAmount = financialData.goalAmount
                     totalAmount = financialData.addAmount
                     progressValue = totalAmount / goalAmount
+                    selectedEmoji = financialData.selectedEmoji ?? "" // Load saved emoji
                 }
             }
         }
@@ -181,6 +184,7 @@ struct ContentView: View {
         totalAmount = 0.0
         progressValue = 0.0
         addAmount = ""
+        selectedEmoji = ""
 
         if let financialData = financialDataList.first {
             modelContext.delete(financialData)
@@ -192,6 +196,7 @@ struct ContentView: View {
         }
     }
 }
+
 #Preview {
     ContentView()
 }

@@ -15,12 +15,14 @@ class FinancialData: Identifiable {
     var progress: Float
     var goalAmount: Float
     var addAmount: Float
+    var selectedEmoji: String?
     
-    init(progress: Float = 0.0, goalAmount: Float = 0.0, addAmount: Float = 0.0) {
+    init(progress: Float = 0.0, goalAmount: Float = 0.0, addAmount: Float = 0.0, selectedEmoji: String? = nil) {
         // إنشاء معرف فريد جديد
         self.progress = progress
         self.goalAmount = goalAmount
         self.addAmount = addAmount
+        self.selectedEmoji = selectedEmoji 
     }
 }
 
