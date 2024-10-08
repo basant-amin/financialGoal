@@ -65,6 +65,7 @@ struct CelebrationView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(ConfettiUIView().ignoresSafeArea()) // Add the confetti effect here
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -162,5 +163,7 @@ enum ConfettiShape {
     case rectangle
 }
 #Preview {
-    ContentView()
+    CelebrationView(goalCompleted: .constant(true), resetAction: {
+        print("Reset action triggered")
+    })
 }
