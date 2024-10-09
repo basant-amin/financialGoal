@@ -93,8 +93,9 @@ struct ContentView: View {
                                 goalInput = ""
                                 showPopup = false
                                 
+                                // Show success pop-up after saving goal
                                 showSuccess = true
-
+                                
                                 let newFinancialData = FinancialData(progress: progressValue, goalAmount: goalAmount, addAmount: totalAmount, selectedEmoji: selectedEmoji)
                                 modelContext.insert(newFinancialData)
 
@@ -102,11 +103,8 @@ struct ContentView: View {
                                     try modelContext.save()
                                 } catch {
                                     print("Error saving new financial data: \(error)")
-                                    
-                                    
                                 }
         
-
                                 // Dismiss the keyboard after saving goal
                                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             }
@@ -155,8 +153,6 @@ struct ContentView: View {
 
                                     do {
                                         try modelContext.save()
-                                        // Show success pop-up after saving goal
-                                        showSuccess = true
                                     } catch {
                                         print("Error saving financial data: \(error)")
                                     }
@@ -198,19 +194,19 @@ struct ContentView: View {
                                 showSuccess = false
                             }
                         }
-
+                    
                     // Pop-up content
                     VStack {
                         Image(systemName: "checkmark.circle.fill")
                             .resizable()
                             .frame(width: 40, height: 40)
                             .foregroundColor(.green)
-
+                        
                         Text("Success")
                             .font(.title2)
                             .foregroundColor(.green)
                             .padding(.top, 4)
-
+                        
                         Text("Your goal has been created")
                             .font(.body)
                             .padding(.top, 2)
