@@ -22,9 +22,15 @@ struct ContentView: View {
     @State private var alertMessage = ""
     @State private var showEmojiPicker = false
     @State private var selectedEmoji: String = ""
-    
-    
-    
+
+    // إضافة حالة التركيز
+    @FocusState private var isAddingAmount: Bool
+    @FocusState private var isGoalInputFocused: Bool // إضافة حالة تركيز جديدة لحقل الهدف
+
+    // خاصية محسوبة لتحديد رؤية النص
+    private var isTextVisible: Bool {
+        !isAddingAmount && !isGoalInputFocused && goalAmount > 0
+    }
 
     var body: some View {
         NavigationStack {
@@ -38,16 +44,28 @@ struct ContentView: View {
                 Image("Card")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 750, height:750)
+                    .frame(width: 750, height: 750)
                     .padding(.top, 90)
 
                 VStack {
-                    
-                    
-                 
-                    ProgressBar(progress: self.$progressValue, showPopup: $showPopup, selectedEmoji: $selectedEmoji, showEmojiPicker: $showEmojiPicker)
-                        .frame(width: 160.0, height: 160.0)
-                        .padding(20.0)
+                    // استخدام حركة سلسة عندما يظهر أو يختفي النص
+                    VStack(spacing: 10) {
+                        if isTextVisible {
+                            Text("\(Int(progressValue * 100))%")
+                                .font(.system(size: 40, weight: .bold))
+                                .padding(.bottom, 20)
+                                .foregroundColor(Color.black)
+                                .transition(.opacity) 
+                                .animation(.easeInOut(duration: 0.5), value: progressValue)
+                        }
+
+                        // تطبيق حركة سلسة على الدائرة
+                        ProgressBar(progress: self.$progressValue, showPopup: $showPopup, selectedEmoji: $selectedEmoji, showEmojiPicker: $showEmojiPicker)
+                            .frame(width: 160.0, height: 160.0)
+                            .padding(20.0)
+                            .animation(.easeInOut(duration: 0.5), value: progressValue)
+                    }
+                    .animation(.easeInOut(duration: 0.5), value: isTextVisible) // تحريك النص والدائرة معًا بسلاسة
 
                     Text("Goal: \(Int(goalAmount))")
                         .padding(.top, 30)
@@ -55,6 +73,7 @@ struct ContentView: View {
 
                     if goalAmount == 0 {
                         TextField("Enter new goal", text: $goalInput)
+                            .focused($isGoalInputFocused) // تعيين التركيز على حقل الهدف
                             .keyboardType(.decimalPad)
                             .padding(10)
                             .background(Color.white)
@@ -99,6 +118,7 @@ struct ContentView: View {
 
                     if goalAmount > 0 {
                         TextField("Enter amount 💰", text: $addAmount)
+                            .focused($isAddingAmount) // تعيين التركيز على حقل النص
                             .keyboardType(.decimalPad)
                             .padding(10)
                             .background(Color.white)
@@ -189,13 +209,12 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     VStack(alignment: .leading) {
                         Text("Welcome to your")
-                        
-                            .padding(.top, showEmojiPicker  ? 0 : 20)
+                            .padding(.top, showEmojiPicker ? 0 : 20)
                         Text("Financial Goal")
                             .font(.system(size: 35))
                             .foregroundColor(.lightBlack)
                             .bold()
-                            .padding(.bottom, showEmojiPicker  ? 400 : 0)
+                            .padding(.bottom, showEmojiPicker ? 400 : 0)
                     }
                 }
 
@@ -205,7 +224,6 @@ struct ContentView: View {
                     }) {
                         Image(systemName: "trash")
                             .foregroundColor(Color.red)
-                        
                     }
                 }
             }

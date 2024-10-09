@@ -21,11 +21,7 @@ struct ProgressBar: View {
                 .fill(Color.white) // Change Circle color to white
                 .frame(width: 220, height: 220) // Set Circle size to 220x220
                 .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5) // Add shadow
-                .overlay(
-                    Image(systemName: "plus")
-                        .foregroundColor(Color(red: 99/255, green: 94/255, blue: 94/255)) // Plus button color
-                        .font(.system(size: 90)) // Adjust the plus button size
-                )
+           
             
             Circle()
                 .stroke(lineWidth: 20.0)
@@ -59,8 +55,8 @@ struct ProgressBar: View {
                     }
                 }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 72))
-                        .foregroundColor(.black)
+                        .foregroundColor(Color(red: 99/255, green: 94/255, blue: 94/255)) // Plus button color
+                        .font(.system(size: 90))
                 }
             } else {
                 Text(selectedEmoji)
