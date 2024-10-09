@@ -20,7 +20,7 @@ struct CelebrationView: View {
                 Text("🎉 Congratulations 🎉")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.lightBlack)
                     .multilineTextAlignment(.center)
                     .padding(.top, 150.0)
                 
@@ -33,9 +33,14 @@ struct CelebrationView: View {
                     Circle()
                         .trim(from: 0.0, to: 1.0)
                         .stroke(
-                            LinearGradient(gradient: Gradient(colors: [Color.purple]),
-                                           startPoint: .leading, endPoint: .trailing),
-                            lineWidth: 20
+                            LinearGradient(
+                                gradient: Gradient(
+                                    colors: [Color.lightBlue, Color.blue1]
+                                ),
+                                           startPoint: .leading,
+ endPoint: .trailing
+),
+                            lineWidth: 15
                         )
                         .frame(width: 180, height: 180)
                         .rotationEffect(.degrees(-90))

@@ -20,7 +20,7 @@ struct SplashScreenView: View {
                 Image("IOSlogo") // Replace with your image name
                     .resizable()
                     .aspectRatio(contentMode: .fit) // Adjusts the image size to fit
-                    .frame(width: 400, height: 400) // Set the size of the image
+                    .frame(width: 250, height: 250) // Set the size of the image
                     .scaleEffect(size)
                     .opacity(opacity)
                     .rotationEffect(.degrees(rotation)) // Add rotation effect
